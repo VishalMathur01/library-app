@@ -1,0 +1,14 @@
+[
+    {
+      "name": "Book 1",
+      "author": "Author 1",
+      "serialNo": "1001",
+      "available": "Y"
+    },
+    {
+      "name": "Book 2",
+      "author": "Author 2",
+      "serialNo": "1002",
+      "available": "N"
+    }
+  ]

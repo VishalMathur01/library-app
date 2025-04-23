@@ -3,6 +3,112 @@ import { Link } from 'react-router-dom';
 
 const UserTransactions = () => {
   const [showSection, setShowSection] = useState(null);
+  const [availability, setAvailability] = useState(null);
+  const [availabilityError, setAvailabilityError] = useState(null);
+  const [selectedBookNameAvailability, setSelectedBookNameAvailability] = useState('');
+  const [issueBookId, setIssueBookId] = useState('');
+  const [issueMembershipId, setIssueMembershipId] = useState('');
+  const [issueDate, setIssueDate] = useState('');
+  const [returnDate, setReturnDate] = useState('');
+  const [issueSuccessMessage, setIssueSuccessMessage] = useState('');
+  const [issueErrorMessage, setIssueErrorMessage] = useState('');
+  const [returnBookSerialNo, setReturnBookSerialNo] = useState('');
+  const [returnSuccessMessage, setReturnSuccessMessage] = useState('');
+  const [returnErrorMessage, setReturnErrorMessage] = useState('');
+  const [payFineBookSerialNo, setPayFineBookSerialNo] = useState('');
+  const [payFineAmount, setPayFineAmount] = useState(0);
+  const [payFineSuccessMessage, setPayFineSuccessMessage] = useState('');
+  const [payFineErrorMessage, setPayFineErrorMessage] = useState('');
+
+  const handleCheckAvailability = async () => {
+    if (!selectedBookNameAvailability) {
+      alert('Please select a Book Name.');
+      return;
+    }
+    try {
+      const response = await fetch(`http://localhost:5000/books?name=${selectedBookNameAvailability}`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      if (data.length > 0) {
+        setAvailability(data[0].status);
+        setAvailabilityError(null);
+      } else {
+        setAvailability('Not Found');
+        setAvailabilityError(null);
+      }
+    } catch (err) {
+      setAvailabilityError(err.message);
+      setAvailability(null);
+    }
+  };
+
+  const handleIssueRequest = async () => {
+    if (!issueBookId || !issueMembershipId || !issueDate || !returnDate) {
+      alert('Please fill all fields.');
+      return;
+    }
+    try {
+      const response = await fetch('http://localhost:5000/issues', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          serialNo: parseInt(issueBookId),
+          membershipId: parseInt(issueMembershipId),
+          issueDate,
+          returnDate,
+        }),
+      });
+      if (response.ok) {
+        setIssueSuccessMessage('Issue request submitted!');
+        setIssueErrorMessage('');
+        // Optionally update the book's status in the local state or refetch books
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to submit issue request');
+      }
+    } catch (error) {
+      setIssueErrorMessage(error.message);
+      setIssueSuccessMessage('');
+    }
+  };
+
+  const handleReturnBook = async () => {
+    if (!returnBookSerialNo) {
+      alert('Please enter the Serial No of the book to return.');
+      return;
+    }
+    try {
+      // In a real scenario, you might update the 'issues' table and the 'books' status
+      // JSON Server doesn't easily support complex updates without a backend
+      // For this example, we'll just simulate a successful return
+      setReturnSuccessMessage(`Book with Serial No ${returnBookSerialNo} returned!`);
+      setReturnErrorMessage('');
+    } catch (error) {
+      setReturnErrorMessage(error.message || 'Failed to return book.');
+      setReturnSuccessMessage('');
+    }
+  };
+
+  const handlePayFine = async () => {
+    if (!payFineBookSerialNo || isNaN(payFineAmount) || payFineAmount <= 0) {
+      alert('Please enter Book Serial No and a valid Fine Amount.');
+      return;
+    }
+    try {
+      // In a real scenario, you'd update membership or fines records
+      // JSON Server simulation
+      setPayFineSuccessMessage(`Fine of ${payFineAmount} paid for Book Serial No ${payFineBookSerialNo}!`);
+      setPayFineErrorMessage('');
+    } catch (error) {
+      setPayFineErrorMessage(error.message || 'Failed to process fine payment.');
+      setPayFineSuccessMessage('');
+    }
+  };
 
   const buttonStyle = {
     backgroundColor: '#007bff',
@@ -171,23 +277,30 @@ const UserTransactions = () => {
         </button>
       </div>
 
-      {/* Is Book Available Section */}
       {showSection === 'isBookAvailable' && (
         <div style={formContainerStyle}>
           <h3 style={formTitleStyle}>Check Book Availability</h3>
           <label style={labelStyle}>Book Name:</label>
-          <select style={selectStyle}>
-            <option>Select Book Name</option>
-            <option>Book 1</option>
-            <option>Book 2</option>
+          <select
+            style={selectStyle}
+            value={selectedBookNameAvailability}
+            onChange={(e) => setSelectedBookNameAvailability(e.target.value)}
+          >
+            <option value="">Select Book Name</option>
+            <option value="Book 1">Book 1</option>
+            <option value="Book 2">Book 2</option>
+            <option value="Book 3">Book 3</option>
           </select>
           <button
             style={buttonStyle}
             onMouseEnter={(e) => Object.assign(e.target.style, buttonHoverStyle)}
             onMouseLeave={(e) => Object.assign(e.target.style, buttonStyle)}
+            onClick={handleCheckAvailability}
           >
             Search
           </button>
+          {availability !== null && <p>Availability: {availability}</p>}
+          {availabilityError && <p style={{ color: 'red' }}>Error: {availabilityError}</p>}
           <button
             style={cancelButtonStyle}
             onMouseEnter={(e) => Object.assign(e.target.style, cancelButtonHoverStyle)}
@@ -199,27 +312,47 @@ const UserTransactions = () => {
         </div>
       )}
 
-      {/* Issue Book Section (Example - you'll need to add state and handlers) */}
       {showSection === 'issueBook' && (
         <div style={formContainerStyle}>
-          <h3 style={formTitleStyle}>Issue Book</h3>
-          <label style={labelStyle}>Book Name:</label>
-          <select style={selectStyle}>
-            <option>Select Book Name</option>
-            <option>Book 1</option>
-            <option>Book 2</option>
-          </select>
+          <h3 style={formTitleStyle}>Request Book Issue</h3>
+          <label style={labelStyle}>Book Serial No:</label>
+          <input
+            type="number"
+            style={inputStyle}
+            value={issueBookId}
+            onChange={(e) => setIssueBookId(e.target.value)}
+          />
+          <label style={labelStyle}>Membership ID:</label>
+          <input
+            type="number"
+            style={inputStyle}
+            value={issueMembershipId}
+            onChange={(e) => setIssueMembershipId(e.target.value)}
+          />
           <label style={labelStyle}>Issue Date:</label>
-          <input type="date" style={inputStyle} />
+          <input
+            type="date"
+            style={inputStyle}
+            value={issueDate}
+            onChange={(e) => setIssueDate(e.target.value)}
+          />
           <label style={labelStyle}>Return Date:</label>
-          <input type="date" style={inputStyle} />
+          <input
+            type="date"
+            style={inputStyle}
+            value={returnDate}
+            onChange={(e) => setReturnDate(e.target.value)}
+          />
           <button
             style={confirmButtonStyle}
             onMouseEnter={(e) => Object.assign(e.target.style, confirmButtonHoverStyle)}
             onMouseLeave={(e) => Object.assign(e.target.style, confirmButtonStyle)}
+            onClick={handleIssueRequest}
           >
             Request Issue
           </button>
+          {issueSuccessMessage && <p style={{ color: 'green' }}>{issueSuccessMessage}</p>}
+          {issueErrorMessage && <p style={{ color: 'red' }}>{issueErrorMessage}</p>}
           <button
             style={cancelButtonStyle}
             onMouseEnter={(e) => Object.assign(e.target.style, cancelButtonHoverStyle)}
@@ -231,25 +364,26 @@ const UserTransactions = () => {
         </div>
       )}
 
-      {/* Return Book Section (Example) */}
       {showSection === 'returnBook' && (
         <div style={formContainerStyle}>
           <h3 style={formTitleStyle}>Return Book</h3>
-          <label style={labelStyle}>Book Name:</label>
-          <select style={selectStyle}>
-            <option>Select Book Name</option>
-            <option>Book 1</option>
-            <option>Book 2</option>
-          </select>
-          <label style={labelStyle}>Return Date:</label>
-          <input type="date" style={inputStyle} />
+          <label style={labelStyle}>Book Serial No:</label>
+          <input
+            type="number"
+            style={inputStyle}
+            value={returnBookSerialNo}
+            onChange={(e) => setReturnBookSerialNo(e.target.value)}
+          />
           <button
             style={confirmButtonStyle}
             onMouseEnter={(e) => Object.assign(e.target.style, confirmButtonHoverStyle)}
             onMouseLeave={(e) => Object.assign(e.target.style, confirmButtonStyle)}
+            onClick={handleReturnBook}
           >
             Confirm Return
           </button>
+          {returnSuccessMessage && <p style={{ color: 'green' }}>{returnSuccessMessage}</p>}
+          {returnErrorMessage && <p style={{ color: 'red' }}>{returnErrorMessage}</p>}
           <button
             style={cancelButtonStyle}
             onMouseEnter={(e) => Object.assign(e.target.style, cancelButtonHoverStyle)}
@@ -261,21 +395,33 @@ const UserTransactions = () => {
         </div>
       )}
 
-      {/* Pay Fine Section (Example) */}
       {showSection === 'payFine' && (
         <div style={formContainerStyle}>
           <h3 style={formTitleStyle}>Pay Fine</h3>
-          <label style={labelStyle}>Book Name:</label>
-          <input type="text" style={inputStyle} readOnly placeholder="Book Name" value="Book 1" />
+          <label style={labelStyle}>Book Serial No:</label>
+          <input
+            type="number"
+            style={inputStyle}
+            value={payFineBookSerialNo}
+            onChange={(e) => setPayFineBookSerialNo(e.target.value)}
+          />
           <label style={labelStyle}>Fine Amount:</label>
-          <input type="number" style={inputStyle} readOnly placeholder="Fine Amount" value="50" />
+          <input
+            type="number"
+            style={inputStyle}
+            value={payFineAmount}
+            onChange={(e) => setPayFineAmount(parseFloat(e.target.value))}
+          />
           <button
             style={confirmButtonStyle}
             onMouseEnter={(e) => Object.assign(e.target.style, confirmButtonHoverStyle)}
             onMouseLeave={(e) => Object.assign(e.target.style, confirmButtonStyle)}
+            onClick={handlePayFine}
           >
             Pay Fine
           </button>
+          {payFineSuccessMessage && <p style={{ color: 'green' }}>{payFineSuccessMessage}</p>}
+          {payFineErrorMessage && <p style={{ color: 'red' }}>{payFineErrorMessage}</p>}
           <button
             style={cancelButtonStyle}
             onMouseEnter={(e) => Object.assign(e.target.style, cancelButtonHoverStyle)}

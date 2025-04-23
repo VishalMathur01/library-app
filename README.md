@@ -1,70 +1,111 @@
-# Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Library Management System
 
-## Available Scripts
+This project is a **Library Management System** developed as part of a test assignment for **Acxiom Consulting**. It is a web-based application built using React.js that allows admins and users to manage library resources efficiently. The system includes role-based access control, ensuring secure and seamless functionality.
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## Table of Contents
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+1. [Overview](#overview)
+2. [Features](#features)
+3. [Installation](#installation)
+4. [Usage](#usage)
+5. [Folder Structure](#folder-structure)
+6. [Technologies Used](#technologies-used)
+7. [Contributions](#contributions)
+8. [License](#license)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+---
 
-### `npm test`
+## Overview
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+The Library Management System provides a robust solution for managing books, movies, memberships, and transactions within a library. It includes role-based access control, ensuring that admins and users have access to only the features relevant to their roles.
 
-### `npm run build`
+---
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Features
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Admin Features
+- **Maintenance**:
+  - Add, update, and manage memberships, books, movies, and user accounts.
+- **Reports**:
+  - Generate reports on books, movies, memberships, active issues, overdue returns, and pending requests.
+- **Transactions**:
+  - Issue books, return books, and manage fines.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### User Features
+- **Reports**:
+  - View reports on books, movies, and memberships.
+- **Transactions**:
+  - Check book availability, issue books, return books, and pay fines.
 
-### `npm run eject`
+### General Features
+- Role-based access control.
+- Secure login system with predefined credentials.
+- Reusable "Go Back" button for seamless navigation.
+- Clean and professional design with consistent styling.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+---
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Installation
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+To run the application locally, follow these simple steps:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/your-repo/library-management-system.git
+   cd library-management-system
+   ```
 
-## Learn More
+2. **Install Dependencies**:
+   ```bash
+   npm install
+   ```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+3. **Start the Application**:
+   ```bash
+   npm start
+   ```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+4. **Open in Browser**:
+   - Once the development server starts, navigate to [http://localhost:3000](http://localhost:3000) in your browser.
 
-### Code Splitting
+That's it! The app will now be up and running.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+---
 
-### Analyzing the Bundle Size
+## Usage
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### Login Credentials
+- **Admin**:
+  - Username: `adm`
+  - Password: `admin123`
+- **User**:
+  - Username: `user`
+  - Password: `user123`
 
-### Making a Progressive Web App
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+---
 
-### Advanced Configuration
+## Folder Structure
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+```
+library-management-system/
+├── public/               # Public assets (e.g., favicon, logo)
+├── src/
+│   ├── components/       # Reusable components (e.g., Header, BackButton)
+│   ├── pages/            # Pages for different modules (e.g., Login, Reports, Transactions)
+│   ├── App.js            # Main application component
+│   ├── index.js          # Entry point of the application
+│   ├── global.css        # Global styles for the application
+├── package.json          # Project dependencies
+├── README.md             # This file
+```
 
-### Deployment
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
 
-### `npm run build` fails to minify
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+

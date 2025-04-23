@@ -1,39 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import moment from 'moment'; // Make sure to install moment: npm install moment
 
 const Reports = () => {
   const [showReport, setShowReport] = useState(null);
-
-  // Dummy Data for Reports
-  const books = [
-    { serialNo: 1001, name: 'Book 1', author: 'Author 1', category: 'Science', status: 'Available', cost: 500, procurementDate: '2023-01-01' },
-    { serialNo: 1002, name: 'Book 2', author: 'Author 2', category: 'Fiction', status: 'Unavailable', cost: 400, procurementDate: '2023-02-01' },
-  ];
-
-  const movies = [
-    { serialNo: 2001, name: 'Movie 1', director: 'Director 1', category: 'Action', status: 'Available', cost: 800, procurementDate: '2023-03-01' },
-    { serialNo: 2002, name: 'Movie 2', director: 'Director 2', category: 'Comedy', status: 'Unavailable', cost: 600, procurementDate: '2023-04-01' },
-  ];
-
-  const memberships = [
-    { id: 1, name: 'Member 1', contactNumber: '1234567890', contactAddress: 'Address 1', aadhaarCardNo: '1234-5678-9012', startDate: '2023-01-01', endDate: '2024-01-01', status: 'Active', amountPending: 0 },
-    { id: 2, name: 'Member 2', contactNumber: '0987654321', contactAddress: 'Address 2', aadhaarCardNo: '9876-5432-1098', startDate: '2023-02-01', endDate: '2024-02-01', status: 'Inactive', amountPending: 500 },
-  ];
-
-  const activeIssues = [
-    { serialNo: 1001, bookMovie: 'Book 1', membershipId: 1, issueDate: '2023-01-01', returnDate: '2023-01-15' },
-    { serialNo: 2001, bookMovie: 'Movie 1', membershipId: 2, issueDate: '2023-02-01', returnDate: '2023-02-15' },
-  ];
-
-  const overdueReturns = [
-    { serialNo: 1001, book: 'Book 1', membershipId: 1, issueDate: '2023-01-01', returnDate: '2023-01-15', fine: 100 },
-    { serialNo: 2001, book: 'Movie 1', membershipId: 2, issueDate: '2023-02-01', returnDate: '2023-02-15', fine: 200 },
-  ];
-
-  const pendingRequests = [
-    { membershipId: 1, bookMovie: 'Book 1', requestedDate: '2023-01-01', requestFulfilledDate: '2023-01-05' },
-    { membershipId: 2, bookMovie: 'Movie 1', requestedDate: '2023-02-01', requestFulfilledDate: '2023-02-05' },
-  ];
+  const [books, setBooks] = useState([]);
+  const [loadingBooks, setLoadingBooks] = useState(false);
+  const [errorBooks, setErrorBooks] = useState(null);
+  const [movies, setMovies] = useState([]);
+  const [loadingMovies, setLoadingMovies] = useState(false);
+  const [errorMovies, setErrorMovies] = useState(null);
+  const [memberships, setMemberships] = useState([]);
+  const [loadingMemberships, setLoadingMemberships] = useState(false);
+  const [errorMemberships, setErrorMemberships] = useState(null);
+  const [activeIssues, setActiveIssues] = useState([]);
+  const [loadingActiveIssues, setLoadingActiveIssues] = useState(false);
+  const [errorActiveIssues, setErrorActiveIssues] = useState(null);
+  const [overdueReturns, setOverdueReturns] = useState([]);
+  const [loadingOverdue, setLoadingOverdue] = useState(false);
+  const [errorOverdue, setErrorOverdue] = useState(null);
+  const [pendingRequests, setPendingRequests] = useState([]);
+  const [loadingPending, setLoadingPending] = useState(false);
+  const [errorPending, setErrorPending] = useState(null);
 
   const buttonStyle = {
     backgroundColor: '#007bff',
@@ -60,7 +48,7 @@ const Reports = () => {
     marginTop: '20px',
     width: '95%',
     maxWidth: '1200px',
-    overflowX: 'auto', // For horizontal scrolling if tables are wide
+    overflowX: 'auto',
   };
 
   const reportTitleStyle = {
@@ -117,6 +105,103 @@ const Reports = () => {
   const backButtonHoverStyle = {
     backgroundColor: '#545b62',
   };
+
+  useEffect(() => {
+    const fetchReportData = async () => {
+      setLoadingBooks(true);
+      setLoadingMovies(true);
+      setLoadingMemberships(true);
+      setLoadingActiveIssues(true);
+      setLoadingOverdue(true);
+      setLoadingPending(true);
+      setErrorBooks(null);
+      setErrorMovies(null);
+      setErrorMemberships(null);
+      setErrorActiveIssues(null);
+      setErrorOverdue(null);
+      setErrorPending(null);
+
+      try {
+        const booksResponse = await fetch('http://localhost:5000/books');
+        if (!booksResponse.ok) throw new Error(`HTTP error! status: ${booksResponse.status}`);
+        setBooks(await booksResponse.json());
+      } catch (error) {
+        setErrorBooks(error.message);
+      } finally {
+        setLoadingBooks(false);
+      }
+
+      try {
+        const moviesResponse = await fetch('http://localhost:5000/movies');
+        if (!moviesResponse.ok) throw new Error(`HTTP error! status: ${moviesResponse.status}`);
+        setMovies(await moviesResponse.json());
+      } catch (error) {
+        setErrorMovies(error.message);
+      } finally {
+        setLoadingMovies(false);
+      }
+
+      try {
+        const membershipsResponse = await fetch('http://localhost:5000/memberships');
+        if (!membershipsResponse.ok) throw new Error(`HTTP error! status: ${membershipsResponse.status}`);
+        setMemberships(await membershipsResponse.json());
+      } catch (error) {
+        setErrorMemberships(error.message);
+      } finally {
+        setLoadingMemberships(false);
+      }
+
+      try {
+        const issuesResponse = await fetch('http://localhost:5000/issues?_expand=book&_expand=membership');
+        if (!issuesResponse.ok) throw new Error(`HTTP error! status: ${issuesResponse.status}`);
+        setActiveIssues(await issuesResponse.json());
+      } catch (error) {
+        setErrorActiveIssues(error.message);
+      } finally {
+        setLoadingActiveIssues(false);
+      }
+
+      if (showReport === 'overdueReturns') {
+        try {
+          const response = await fetch('http://localhost:5000/issues?_expand=book&_expand=membership');
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          const allIssues = await response.json();
+
+          const currentDate = moment();
+          const overdue = allIssues.filter(issue => {
+            const returnDate = moment(issue.returnDate);
+            return returnDate.isBefore(currentDate, 'day');
+          }).map(issue => ({
+            ...issue,
+            overdueDate: moment(issue.returnDate).format('YYYY-MM-DD'),
+            daysOverdue: currentDate.diff(moment(issue.returnDate), 'days'),
+            fine: currentDate.diff(moment(issue.returnDate), 'days') * 1, // Basic fine
+          }));
+          setOverdueReturns(overdue);
+        } catch (error) {
+          setErrorOverdue(error.message);
+        } finally {
+          setLoadingOverdue(false);
+        }
+      }
+
+      if (showReport === 'pendingRequests') {
+        try {
+          const response = await fetch('http://localhost:5000/issueRequests?_expand=book&_expand=membership');
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          setPendingRequests(await response.json());
+        } catch (error) {
+          setErrorPending(error.message);
+        } finally {
+          setLoadingPending(false);
+        }
+      }
+    };
+
+    if (showReport) {
+      fetchReportData();
+    }
+  }, [showReport]);
 
   return (
     <div style={{
@@ -188,254 +273,242 @@ const Reports = () => {
         </button>
       </div>
 
-      {/* Master List of Books */}
       {showReport === 'masterListBooks' && (
         <div style={reportContainerStyle}>
           <h3 style={reportTitleStyle}>Master List of Books</h3>
-          <table style={tableStyle}>
-            <thead>
-              <tr>
-                <th style={thStyle}>Serial No</th>
-                <th style={thStyle}>Name</th>
-                <th style={thStyle}>Author</th>
-                <th style={thStyle}>Category</th>
-                <th style={thStyle}>Status</th>
-                <th style={thStyle}>Cost</th>
-                <th style={thStyle}>Procurement Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {books.map((book) => (
-                <tr key={book.serialNo}>
-                  <td style={tdStyle}>{book.serialNo}</td>
-                  <td style={tdStyle}>{book.name}</td>
-                  <td style={tdStyle}>{book.author}</td>
-                  <td style={tdStyle}>{book.category}</td>
-                  <td style={tdStyle}>{book.status}</td>
-                  <td style={tdStyle}>{book.cost}</td>
-                  <td style={tdStyle}>{book.procurementDate}</td>
+          {loadingBooks && <p>Loading books...</p>}
+          {errorBooks && <p style={{ color: 'red' }}>Error loading books: {errorBooks}</p>}
+          {!loadingBooks && !errorBooks && (
+            <table style={tableStyle}>
+              <thead>
+                <tr>
+                  <th style={thStyle}>Serial No</th>
+                  <th style={thStyle}>Name</th>
+                  <th style={thStyle}>Author</th>
+                  <th style={thStyle}>Category</th>
+                  <th style={thStyle}>Status</th>
+                  <th style={thStyle}>Cost</th>
+                  <th style={thStyle}>Procurement Date</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          <button
-            style={backButtonStyle}
-            onMouseEnter={(e) => Object.assign(e.target.style, backButtonHoverStyle)}
-            onMouseLeave={(e) => Object.assign(e.target.style, backButtonStyle)}
-            onClick={() => setShowReport(null)}
-          >
-            Back
-          </button>
+              </thead>
+              <tbody>
+                {books.map((book) => (
+                  <tr key={book.serialNo}>
+                    <td style={tdStyle}>{book.serialNo}</td>
+                    <td style={tdStyle}>{book.name}</td>
+                    <td style={tdStyle}>{book.author}</td>
+                    <td style={tdStyle}>{book.category}</td>
+                    <td style={tdStyle}>{book.status}</td>
+                    <td style={tdStyle}>{book.cost}</td>
+                    <td style={tdStyle}>{book.procurementDate}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+          <button style={backButtonStyle} onClick={() => setShowReport(null)}>Back</button>
         </div>
       )}
 
-      {/* Master List of Movies */}
       {showReport === 'masterListMovies' && (
         <div style={reportContainerStyle}>
           <h3 style={reportTitleStyle}>Master List of Movies</h3>
-          <table style={tableStyle}>
-            <thead>
-              <tr>
-                <th style={thStyle}>Serial No</th>
-                <th style={thStyle}>Name</th>
-                <th style={thStyle}>Director</th>
-                <th style={thStyle}>Category</th>
-                <th style={thStyle}>Status</th>
-                <th style={thStyle}>Cost</th>
-                <th style={thStyle}>Procurement Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {movies.map((movie) => (
-                <tr key={movie.serialNo}>
-                  <td style={tdStyle}>{movie.serialNo}</td>
-                  <td style={tdStyle}>{movie.name}</td>
-                  <td style={tdStyle}>{movie.director}</td>
-                  <td style={tdStyle}>{movie.category}</td>
-                  <td style={tdStyle}>{movie.status}</td>
-                  <td style={tdStyle}>{movie.cost}</td>
-                  <td style={tdStyle}>{movie.procurementDate}</td>
+          {loadingMovies && <p>Loading movies...</p>}
+          {errorMovies && <p style={{ color: 'red' }}>Error loading movies: {errorMovies}</p>}
+          {!loadingMovies && !errorMovies && (
+            <table style={tableStyle}>
+              <thead>
+                <tr>
+                  <th style={thStyle}>Serial No</th>
+                  <th style={thStyle}>Name</th>
+                  <th style={thStyle}>Director</th>
+                  <th style={thStyle}>Category</th>
+                  <th style={thStyle}>Status</th>
+                  <th style={thStyle}>Cost</th>
+                  <th style={thStyle}>Procurement Date</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          <button
-            style={backButtonStyle}
-            onMouseEnter={(e) => Object.assign(e.target.style, backButtonHoverStyle)}
-            onMouseLeave={(e) => Object.assign(e.target.style, backButtonStyle)}
-            onClick={() => setShowReport(null)}
-          >
-            Back
-          </button>
+              </thead>
+              <tbody>
+                {movies.map((movie) => (
+                  <tr key={movie.serialNo}>
+                    <td style={tdStyle}>{movie.serialNo}</td>
+                    <td style={tdStyle}>{movie.name}</td>
+                    <td style={tdStyle}>{movie.director}</td>
+                    <td style={tdStyle}>{movie.category}</td>
+                    <td style={tdStyle}>{movie.status}</td>
+                    <td style={tdStyle}>{movie.cost}</td>
+                    <td style={tdStyle}>{movie.procurementDate}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+          <button style={backButtonStyle} onClick={() => setShowReport(null)}>Back</button>
         </div>
       )}
 
-      {/* Master List of Memberships */}
       {showReport === 'masterListMemberships' && (
         <div style={reportContainerStyle}>
           <h3 style={reportTitleStyle}>Master List of Memberships</h3>
-          <table style={tableStyle}>
-            <thead>
-              <tr>
-                <th style={thStyle}>Membership ID</th>
-                <th style={thStyle}>Name</th>
-                <th style={thStyle}>Contact Number</th>
-                <th style={thStyle}>Contact Address</th>
-                <th style={thStyle}>Aadhaar Card No</th>
-                <th style={thStyle}>Start Date</th>
-                <th style={thStyle}>End Date</th>
-                <th style={thStyle}>Status</th>
-                <th style={thStyle}>Amount Pending</th>
-              </tr>
-            </thead>
-            <tbody>
-              {memberships.map((membership) => (
-                <tr key={membership.id}>
-                  <td style={tdStyle}>{membership.id}</td>
-                  <td style={tdStyle}>{membership.name}</td>
-                  <td style={tdStyle}>{membership.contactNumber}</td>
-                  <td style={tdStyle}>{membership.contactAddress}</td>
-                  <td style={tdStyle}>{membership.aadhaarCardNo}</td>
-                  <td style={tdStyle}>{membership.startDate}</td>
-                  <td style={tdStyle}>{membership.endDate}</td>
-                  <td style={tdStyle}>{membership.status}</td>
-                  <td style={tdStyle}>{membership.amountPending}</td>
+          {loadingMemberships && <p>Loading memberships...</p>}
+          {errorMemberships && <p style={{ color: 'red' }}>Error loading memberships: {errorMemberships}</p>}
+          {!loadingMemberships && !errorMemberships && (
+            <table style={tableStyle}>
+              <thead>
+                <tr>
+                  <th style={thStyle}>Membership ID</th>
+                  <th style={thStyle}>Name</th>
+                  <th style={thStyle}>Contact Number</th>
+                  <th style={thStyle}>Contact Address</th>
+                  <th style={thStyle}>Aadhaar Card No</th>
+                  <th style={thStyle}>Start Date</th>
+                  <th style={thStyle}>End Date</th>
+                  <th style={thStyle}>Status</th>
+                  <th style={thStyle}>Amount Pending</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          <button
-            style={backButtonStyle}
-            onMouseEnter={(e) => Object.assign(e.target.style, backButtonHoverStyle)}
-            onMouseLeave={(e) => Object.assign(e.target.style, backButtonStyle)}
-            onClick={() => setShowReport(null)}
-          >
-            Back
-          </button>
+              </thead>
+              <tbody>
+                {memberships.map((membership) => (
+                  <tr key={membership.id}>
+                    <td style={tdStyle}>{membership.id}</td>
+                    <td style={tdStyle}>{membership.name}</td>
+                    <td style={tdStyle}>{membership.contactNumber}</td>
+                    <td style={tdStyle}>{membership.contactAddress}</td>
+                    <td style={tdStyle}>{membership.aadhaarCardNo}</td>
+                    <td style={tdStyle}>{membership.startDate}</td>
+                    <td style={tdStyle}>{membership.endDate}</td>
+                    <td style={tdStyle}>{membership.status}</td>
+                    <td style={tdStyle}>{membership.amountPending}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+          <button style={backButtonStyle} onClick={() => setShowReport(null)}>Back</button>
         </div>
       )}
 
-      {/* Active Issues */}
       {showReport === 'activeIssues' && (
         <div style={reportContainerStyle}>
           <h3 style={reportTitleStyle}>Active Issues</h3>
-          <table style={tableStyle}>
-            <thead>
-              <tr>
-                <th style={thStyle}>Serial No</th>
-                <th style={thStyle}>Book/Movie</th>
-                <th style={thStyle}>Membership ID</th>
-                <th style={thStyle}>Issue Date</th>
-                <th style={thStyle}>Return Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {activeIssues.map((issue) => (
-                <tr key={issue.serialNo}>
-                  <td style={tdStyle}>{issue.serialNo}</td>
-                  <td style={tdStyle}>{issue.bookMovie}</td>
-                  <td style={tdStyle}>{issue.membershipId}</td>
-                  <td style={tdStyle}>{issue.issueDate}</td>
-                  <td style={tdStyle}>{issue.returnDate}</td>
+          {loadingActiveIssues && <p>Loading active issues...</p>}
+          {errorActiveIssues && <p style={{ color: 'red' }}>Error loading active issues: {errorActiveIssues}</p>}
+          {!loadingActiveIssues && (
+            <table style={tableStyle}>
+              <thead>
+                <tr>
+                  <th style={thStyle}>Issue ID</th>
+                  <th style={thStyle}>Book Name</th>
+                  <th style={thStyle}>Member Name</th>
+                  <th style={thStyle}>Issue Date</th>
+                  <th style={thStyle}>Return Date</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          <button
-            style={backButtonStyle}
-            onMouseEnter={(e) => Object.assign(e.target.style, backButtonHoverStyle)}
-            onMouseLeave={(e) => Object.assign(e.target.style, backButtonStyle)}
-            onClick={() => setShowReport(null)}
-          >
-            Back
-          </button>
+              </thead>
+              <tbody>
+                {activeIssues.map((issue) => (
+                  <tr key={issue.id}>
+                    <td style={tdStyle}>{issue.id}</td>
+                    <td style={tdStyle}>{issue.book?.name}</td>
+                    <td style={tdStyle}>{issue.membership?.name}</td>
+                    <td style={tdStyle}>{issue.issueDate}</td>
+                    <td style={tdStyle}>{issue.returnDate}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+          <button style={backButtonStyle} onClick={() => setShowReport(null)}>Back</button>
         </div>
-      )}
+        )}
 
-      {/* Overdue Returns */}
-      {showReport === 'overdueReturns' && (
-        <div style={reportContainerStyle}>
-          <h3 style={reportTitleStyle}>Overdue Returns</h3>
-          <table style={tableStyle}>
-            <thead>
-              <tr>
-                <th style={thStyle}>Serial No</th>
-                <th style={thStyle}>Book</th>
-                <th style={thStyle}>Membership ID</th>
-                <th style={thStyle}>Issue Date</th>
-                <th style={thStyle}>Return Date</th>
-                <th style={thStyle}>Fine Calculated</th>
-              </tr>
-            </thead>
-            <tbody>
-              {overdueReturns.map((overdue) => (
-                <tr key={overdue.serialNo}>
-                  <td style={tdStyle}>{overdue.serialNo}</td>
-                  <td style={tdStyle}>{overdue.book}</td>
-                  <td style={tdStyle}>{overdue.membershipId}</td>
-                  <td style={tdStyle}>{overdue.issueDate}</td>
-                  <td style={tdStyle}>{overdue.returnDate}</td>
-                  <td style={tdStyle}>{overdue.fine}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <button
-            style={backButtonStyle}
-            onMouseEnter={(e) => Object.assign(e.target.style, backButtonHoverStyle)}
-            onMouseLeave={(e) => Object.assign(e.target.style, backButtonStyle)}
-            onClick={() => setShowReport(null)}
-          >
-            Back
-          </button>
-        </div>
-      )}
-
-      {/* Pending Issue Requests */}
-      {showReport === 'pendingRequests' && (
-        <div style={reportContainerStyle}>
-          <h3 style={reportTitleStyle}>Pending Issue Requests</h3>
-          <table style={tableStyle}>
-            <thead>
-              <tr>
-                <th style={thStyle}>Membership ID</th>
-                <th style={thStyle}>Book/Movie</th>
-                <th style={thStyle}>Requested Date</th>
-                <th style={thStyle}>Request Fulfilled Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {pendingRequests.map((request) => (
-                <tr key={request.membershipId}>
-                  <td style={tdStyle}>{request.membershipId}</td>
-                  <td style={tdStyle}>{request.bookMovie}</td>
-                  <td style={tdStyle}>{request.requestedDate}</td>
-                  <td style={tdStyle}>{request.requestFulfilledDate}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <button
-            style={backButtonStyle}
-            onMouseEnter={(e) => Object.assign(e.target.style, backButtonHoverStyle)}
-            onMouseLeave={(e) => Object.assign(e.target.style, backButtonStyle)}
-            onClick={() => setShowReport(null)}
-          >
-            Back
-          </button>
-        </div>
-      )}
-
-      <Link
-        to="/admin-home"
-        style={backLinkStyle}
-        onMouseEnter={(e) => Object.assign(e.target.style, backLinkHoverStyle)}
-        onMouseLeave={(e) => Object.assign(e.target.style, backLinkStyle)}
-      >
-        Back to Admin Home
-      </Link>
-    </div>
-  );
-};
-
-export default Reports;
+        {showReport === 'overdueReturns' && (
+          <div style={reportContainerStyle}>
+            <h3 style={reportTitleStyle}>Overdue Returns</h3>
+            {loadingOverdue && <p>Loading overdue returns...</p>}
+            {errorOverdue && <p style={{ color: 'red' }}>Error loading overdue returns: {errorOverdue}</p>}
+            {!loadingOverdue && !errorOverdue && overdueReturns.length > 0 && (
+              <table style={tableStyle}>
+                <thead>
+                  <tr>
+                    <th style={thStyle}>Issue ID</th>
+                    <th style={thStyle}>Book Name</th>
+                    <th style={thStyle}>Member Name</th>
+                    <th style={thStyle}>Issue Date</th>
+                    <th style={thStyle}>Return Date</th>
+                    <th style={thStyle}>Overdue Date</th>
+                    <th style={thStyle}>Days Overdue</th>
+                    <th style={thStyle}>Fine</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {overdueReturns.map((issue) => (
+                    <tr key={issue.id}>
+                      <td style={tdStyle}>{issue.id}</td>
+                      <td style={tdStyle}>{issue.book?.name}</td>
+                      <td style={tdStyle}>{issue.membership?.name}</td>
+                      <td style={tdStyle}>{issue.issueDate}</td>
+                      <td style={tdStyle}>{issue.returnDate}</td>
+                      <td style={tdStyle}>{issue.overdueDate}</td>
+                      <td style={tdStyle}>{issue.daysOverdue}</td>
+                      <td style={tdStyle}>{issue.fine}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+            {!loadingOverdue && !errorOverdue && overdueReturns.length === 0 && (
+              <p>No overdue returns.</p>
+            )}
+            <button style={backButtonStyle} onClick={() => setShowReport(null)}>Back</button>
+          </div>
+        )}
+  
+        {showReport === 'pendingRequests' && (
+          <div style={reportContainerStyle}>
+            <h3 style={reportTitleStyle}>Pending Issue Requests</h3>
+            {loadingPending && <p>Loading pending requests...</p>}
+            {errorPending && <p style={{ color: 'red' }}>Error loading pending requests: {errorPending}</p>}
+            {!loadingPending && !errorPending && pendingRequests.length > 0 && (
+              <table style={tableStyle}>
+                <thead>
+                  <tr>
+                    <th style={thStyle}>Request ID</th>
+                    <th style={thStyle}>Book Name</th>
+                    <th style={thStyle}>Member Name</th>
+                    <th style={thStyle}>Requested Date</th>
+                    {/* Add other relevant fields based on your 'issueRequests' data */}
+                  </tr>
+                </thead>
+                <tbody>
+                  {pendingRequests.map((request) => (
+                    <tr key={request.id}>
+                      <td style={tdStyle}>{request.id}</td>
+                      <td style={tdStyle}>{request.book?.name}</td>
+                      <td style={tdStyle}>{request.membership?.name}</td>
+                      <td style={tdStyle}>{request.requestedDate}</td>
+                      {/* Add other relevant fields */}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+            {!loadingPending && !errorPending && pendingRequests.length === 0 && (
+              <p>No pending issue requests.</p>
+            )}
+            <button style={backButtonStyle} onClick={() => setShowReport(null)}>Back</button>
+          </div>
+        )}
+  
+        <Link
+          to="/admin-home"
+          style={backLinkStyle}
+          onMouseEnter={(e) => Object.assign(e.target.style, backLinkHoverStyle)}
+          onMouseLeave={(e) => Object.assign(e.target.style, backLinkStyle)}
+        >
+          Back to Admin Home
+        </Link>
+      </div>
+    );
+  };
+  
+  export default Reports;

@@ -3,6 +3,17 @@
 
 This project is a **Library Management System** developed as part of a test assignment for **Acxiom Consulting**. It is a web-based application built using React.js that allows admins and users to manage library resources efficiently. The system includes role-based access control, ensuring secure and seamless functionality.
 
+## Demo
+
+
+
+
+https://github.com/user-attachments/assets/81e4880b-fb30-480f-9edd-7a1264c318a9
+
+
+
+
+
 ---
 
 ## Table of Contents

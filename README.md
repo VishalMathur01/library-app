@@ -12,9 +12,7 @@ This project is a **Library Management System** developed as part of a test assi
 3. [Installation](#installation)
 4. [Usage](#usage)
 5. [Folder Structure](#folder-structure)
-6. [Technologies Used](#technologies-used)
-7. [Contributions](#contributions)
-8. [License](#license)
+
 
 ---
 

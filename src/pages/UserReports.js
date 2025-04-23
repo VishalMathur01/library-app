@@ -1,14 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 const UserReports = () => {
   const [showReport, setShowReport] = useState(null);
+  const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Dummy Data (same as in Reports.js)
-  const books = [
-    { serialNo: 1001, name: 'Book 1', author: 'Author 1', category: 'Science', status: 'Available', cost: 500, procurementDate: '2023-01-01' },
-    { serialNo: 1002, name: 'Book 2', author: 'Author 2', category: 'Fiction', status: 'Unavailable', cost: 400, procurementDate: '2023-02-01' },
-  ];
+  useEffect(() => {
+    const fetchBooks = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/books');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setBooks(data);
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    fetchBooks();
+  }, []);
+
+  if (loading) {
+    return <div>Loading books...</div>;
+  }
+
+  if (error) {
+    return <div>Error loading books: {error}</div>;
+  }
 
   const buttonStyle = {
     backgroundColor: '#007bff',
@@ -35,7 +59,7 @@ const UserReports = () => {
     marginTop: '20px',
     width: '95%',
     maxWidth: '1200px',
-    overflowX: 'auto', // For horizontal scrolling if tables are wide
+    overflowX: 'auto',
   };
 
   const reportTitleStyle = {
@@ -121,10 +145,9 @@ const UserReports = () => {
         >
           Master List of Books
         </button>
-        {/* Add other buttons here */}
+        {/* Add other report buttons here, fetching data from the respective JSON Server endpoints */}
       </div>
 
-      {/* Display Reports */}
       {showReport === 'masterListBooks' && (
         <div style={reportContainerStyle}>
           <h3 style={reportTitleStyle}>Master List of Books</h3>
